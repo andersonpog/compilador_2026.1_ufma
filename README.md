@@ -1,1 +1,1 @@
-# compilador_2026.1_ufma
+# Projeto de compilador
