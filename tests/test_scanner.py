@@ -4,6 +4,9 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from JackTokenizer import JackTokenizer
+from TokenToXML import generate_xml
+
+CURR_DIR = os.path.dirname(__file__)
 
 
 def test_numero_basico():
@@ -95,3 +98,27 @@ def test_identificador_e_keyword():
     assert tokenizer.tokens[0][1] == "function"
 
     os.remove(filename_kw + ".jack")
+
+def test_geracao_xml_square():
+
+    nome_base = "Square"
+
+    path_input = os.path.join(CURR_DIR, nome_base)
+    subpasta_txml = os.path.join(CURR_DIR, "txml")
+
+    path_resultado_gerado = os.path.join(subpasta_txml, nome_base + "T.xml")
+    path_gabarito_oficial = os.path.join(subpasta_txml, "SquareT_GABARITO.xml")
+
+
+    generate_xml(path_input)
+
+
+    with open(path_resultado_gerado, "r", encoding="utf-8") as f:
+        conteudo_gerado = f.read()
+
+    with open(path_gabarito_oficial, "r", encoding="utf-8") as f:
+        conteudo_esperado = f.read()
+
+    assert conteudo_gerado == conteudo_esperado
+
+    os.remove(path_resultado_gerado)
