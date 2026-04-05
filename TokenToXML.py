@@ -38,7 +38,7 @@ def generate_xml(filename):
                 value = XML_ESCAPE.get(value, value)
             
             tag = TAG_MAP[kind]
-            xml_file.write(f"<{tag}> {value} </tag>\n")
+            xml_file.write(f"<{tag}> {value} </{tag}>\n")
             
         xml_file.write("</tokens>\n")
     

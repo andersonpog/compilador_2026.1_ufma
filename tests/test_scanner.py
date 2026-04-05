@@ -107,7 +107,55 @@ def test_geracao_xml_square():
     subpasta_txml = os.path.join(CURR_DIR, "txml")
 
     path_resultado_gerado = os.path.join(CURR_DIR, nome_base + "T.xml")
-    path_gabarito_oficial = os.path.join(subpasta_txml, nome_base + "T_GABARITO.xml")
+    path_gabarito_oficial = os.path.join(subpasta_txml, nome_base + "T.xml")
+
+
+    generate_xml(path_input)
+
+
+    with open(path_resultado_gerado, "r", encoding="utf-8") as f:
+        conteudo_gerado = f.read()
+
+    with open(path_gabarito_oficial, "r", encoding="utf-8") as f:
+        conteudo_esperado = f.read()
+
+    assert conteudo_gerado == conteudo_esperado
+
+    # os.remove(path_resultado_gerado)
+
+def test_geracao_xml_main():
+
+    nome_base = "Main"
+
+    path_input = os.path.join(CURR_DIR, nome_base)
+    subpasta_txml = os.path.join(CURR_DIR, "txml")
+
+    path_resultado_gerado = os.path.join(CURR_DIR, nome_base + "T.xml")
+    path_gabarito_oficial = os.path.join(subpasta_txml, nome_base + "T.xml")
+
+
+    generate_xml(path_input)
+
+
+    with open(path_resultado_gerado, "r", encoding="utf-8") as f:
+        conteudo_gerado = f.read()
+
+    with open(path_gabarito_oficial, "r", encoding="utf-8") as f:
+        conteudo_esperado = f.read()
+
+    assert conteudo_gerado == conteudo_esperado
+
+    os.remove(path_resultado_gerado)
+
+def test_geracao_xml_square_game():
+
+    nome_base = "SquareGame"
+
+    path_input = os.path.join(CURR_DIR, nome_base)
+    subpasta_txml = os.path.join(CURR_DIR, "txml")
+
+    path_resultado_gerado = os.path.join(CURR_DIR, nome_base + "T.xml")
+    path_gabarito_oficial = os.path.join(subpasta_txml, nome_base + "T.xml")
 
 
     generate_xml(path_input)
