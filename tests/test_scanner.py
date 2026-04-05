@@ -121,7 +121,7 @@ def test_geracao_xml_square():
 
     assert conteudo_gerado == conteudo_esperado
 
-    # os.remove(path_resultado_gerado)
+    os.remove(path_resultado_gerado)
 
 def test_geracao_xml_main():
 
