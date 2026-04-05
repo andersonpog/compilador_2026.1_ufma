@@ -69,3 +69,29 @@ def test_string_vazia():
     assert tokenizer.tokens[0][1] == ""
 
     os.remove(filename + ".jack")
+def test_identificador_e_keyword():
+    # Teste com identificador comum
+    filename_id = "TesteIdentificador"
+
+    with open(filename_id + ".jack", "w", encoding="utf-8") as f:
+        f.write("minhaVar123")
+
+    tokenizer = JackTokenizer(filename_id)
+
+    assert tokenizer.tokens[0][0] == "IDENTIFIER"
+    assert tokenizer.tokens[0][1] == "minhaVar123"
+
+    os.remove(filename_id + ".jack")
+
+    # Teste com palavra reservada
+    filename_kw = "TesteKeyword"
+
+    with open(filename_kw + ".jack", "w", encoding="utf-8") as f:
+        f.write("function")
+
+    tokenizer = JackTokenizer(filename_kw)
+
+    assert tokenizer.tokens[0][0] == "KEYWORD"
+    assert tokenizer.tokens[0][1] == "function"
+
+    os.remove(filename_kw + ".jack")
