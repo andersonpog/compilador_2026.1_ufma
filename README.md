@@ -4,8 +4,8 @@ Projeto para a cadeira de Compiladores da UFMA, período 2026.1
 
 ### Integrantes:
 
-- ANDERSON ALMEIDA DA SILVEIRA
-- JEYSRAELLY ALMONE DA SILVA
+- ANDERSON ALMEIDA DA SILVEIRA - Matrícula: 20240065590
+- JEYSRAELLY ALMONE DA SILVA - Matrícula: 20250071222
 
 ### Linguagem:
 
@@ -17,7 +17,7 @@ uv pip install -r requirements.txt
 
 ### Rodando aplicativo
 
-execute o comando
+Execute o comando
 
 python main.py "nome do arquivo sem a extensão"
 
@@ -28,4 +28,4 @@ python main.py teste
 
 ### executando testes
 
- pytest tests/test_scanner.py -v 
+pytest tests/test_scanner.py -v 
