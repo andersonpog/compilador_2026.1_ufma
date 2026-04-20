@@ -35,3 +35,19 @@ def test_parse_expression():
 
     assert "<expression>" in xml
     assert "<symbol> + </symbol>" in xml
+
+
+# Colocando o teste para letStatement conforme aula
+def test_parse_let():
+    current_dir = os.path.dirname(__file__)
+    file_path = os.path.join(current_dir, "let_test")
+
+    tokenizer = JackTokenizer(file_path)
+    tokens = tokenizer.tokens
+
+    parser = Parser(tokens)
+    parser.parse_let()
+    xml = parser.get_xml()
+
+    assert "<letStatement>" in xml
+    assert "<keyword> let </keyword>" in xml
