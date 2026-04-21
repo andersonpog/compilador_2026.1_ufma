@@ -1,4 +1,12 @@
-// comentarios
-if (x < 0) {
-    let sign = "negative";
+class Main {
+    function void test() {
+        if (x < 0) {
+            let sign = "negative";
+        }
+        return;
+    }
 }
+// comentarios
+//if (x < 0) {
+//    let sign = "negative";
+//}

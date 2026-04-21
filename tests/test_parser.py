@@ -6,6 +6,8 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from JackTokenizer import JackTokenizer
 from parser import Parser
 
+CURR_DIR = os.path.dirname(__file__)
+
 def test_parse_term_integer():
     current_dir = os.path.dirname(__file__)
     file_path = os.path.join(current_dir, "term_test")
@@ -97,3 +99,23 @@ def test_parse_class():
     assert "<classVarDec>" in xml
     assert "<subroutineDec>" in xml
     assert "<subroutineBody>" in xml
+
+def test_geracao_xml_square():
+
+    nome_base = "Square"
+
+    path_input = os.path.join(CURR_DIR, nome_base)
+    subpasta_xml = os.path.join(CURR_DIR, "xml")
+
+    tokenizer = JackTokenizer(path_input)
+    parser = Parser(tokenizer.tokens)
+    
+    parser.parse_class() # Inicia o processo do topo
+    xml = parser.get_xml()
+
+    path_gabarito_oficial = os.path.join(subpasta_xml, nome_base + ".xml")
+
+    with open(path_gabarito_oficial, "r", encoding="utf-8") as f:
+        conteudo_esperado = f.read()
+
+    assert xml == conteudo_esperado
