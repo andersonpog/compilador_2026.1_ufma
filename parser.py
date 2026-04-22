@@ -76,17 +76,41 @@ class Parser:
 
         token_type, token_value = token
 
-        if token_type == 'INT_CONST':
+        # 1. Constantes e Palavras-chave
+        if token_type == 'INT_CONST' or token_type == 'STR_CONST':
             self.write_token(self.advance())
-
-        elif token_type == 'STR_CONST':
-            self.write_token(self.advance())
-
         elif token_type == 'KEYWORD' and token_value in ['true', 'false', 'null', 'this']:
             self.write_token(self.advance())
 
+        # 2. Expressões entre parênteses: ( expression )
+        elif token_value == '(':
+            self.match('SYMBOL', '(')
+            self.parse_expression()
+            self.match('SYMBOL', ')')
+
+        # 3. Operadores Unários: -x ou ~y
+        elif token_value in ['-', '~']:
+            self.match('SYMBOL', token_value)
+            self.parse_term()
+
+        # 4. Identificadores (Variáveis, Arrays ou Chamadas de Função)
         elif token_type == 'IDENTIFIER':
             self.write_token(self.advance())
+            
+            # Caso seja um Array: varName[expression]
+            if self.peek() and self.peek()[1] == '[':
+                self.match('SYMBOL', '[')
+                self.parse_expression()
+                self.match('SYMBOL', ']')
+                
+            # Caso seja uma chamada de método/função no meio de expressão
+            elif self.peek() and self.peek()[1] in ['(', '.']:
+                if self.peek()[1] == '.':
+                    self.match('SYMBOL', '.')
+                    self.match('IDENTIFIER')
+                self.match('SYMBOL', '(')
+                self.parse_expression_list()
+                self.match('SYMBOL', ')')
 
         else:
             raise SyntaxError(f"Termo esperado, encontrado: {token_value}")
@@ -102,6 +126,20 @@ class Parser:
             self.parse_term()
 
         self.close_tag("expression")
+
+    def parse_expression_list(self):
+        self.open_tag("expressionList")
+        
+        # Verifica se o próximo token NÃO é ')'. Se não for, temos expressões.
+        if self.peek() and self.peek()[1] != ')':
+            self.parse_expression()
+            
+            # Enquanto houver vírgula, existem mais expressões na lista
+            while self.peek() and self.peek()[1] == ',':
+                self.match('SYMBOL', ',')
+                self.parse_expression()
+                
+        self.close_tag("expressionList")
 
     def parse_class(self):
         self.open_tag("class")
@@ -232,11 +270,22 @@ class Parser:
     def parse_do(self):
         self.open_tag("doStatement")
         self.match('KEYWORD', 'do')
-        # Em Jack, chamadas de sub-rotina começam com um identificador
-        # Para simplificar agora, vamos tratar como um termo até o ponto e vírgula
-        self.parse_term() 
+        
+        self.match('IDENTIFIER')
+        
+        # É uma chamada de método/classe? (ex: Screen.draw)
+        if self.peek() and self.peek()[1] == '.':
+            self.match('SYMBOL', '.')
+            self.match('IDENTIFIER') # Nome da sub-rotina após o ponto
+            
+
+        self.match('SYMBOL', '(')
+        self.parse_expression_list() 
+        self.match('SYMBOL', ')')
+        
+
         self.match('SYMBOL', ';')
-        self.close_tag("doStatement")
+        self.close_tag("doStatement")    
 
     def parse_return(self):
         self.open_tag("returnStatement")
@@ -289,4 +338,4 @@ class Parser:
         self.xml_output.append(f"{indent}<{tag}> {token_value} </{tag}>")
 
     def get_xml(self):
-        return "\n".join(self.xml_output)
+        return "\n".join(self.xml_output) + "\n"
