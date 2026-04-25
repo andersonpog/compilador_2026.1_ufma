@@ -29,7 +29,7 @@ Siga os passos abaixo para preparar o ambiente de desenvolvimento:
 1. **Clonar o repositório:**
    ```bash
    git clone https://github.com/andersonpog/compilador_2026.1_ufma_jack.git
-   cd jack-compiler
+   cd compilador_2026.1_ufma_jack
    ```
 
 2. **Criar o Ambiente Virtual (.venv):**
