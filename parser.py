@@ -41,7 +41,6 @@ class Parser:
             return Segment.LOCAL
         if kind == Kind.ARG:
             return Segment.ARG
-
         return None
 
     def write_op(self, op):
@@ -104,6 +103,35 @@ class Parser:
         self.advance()
         return token
 
+    def compile_subroutine_call(self, first_name):
+        n_args = 0
+
+        if self.peek() and self.peek()[1] == '.':
+            self.match('SYMBOL', '.')
+            second_name_token = self.match('IDENTIFIER')
+            second_name = second_name_token[1]
+
+            symbol = self.symbol_table.resolve(first_name)
+
+            if symbol is not None:
+                segment = self.kind_to_segment(symbol.kind)
+                self.vmWriter.writePush(segment, symbol.index)
+                n_args += 1
+                function_name = f"{symbol.type}.{second_name}"
+            else:
+                function_name = f"{first_name}.{second_name}"
+
+        else:
+            self.vmWriter.writePush(Segment.POINTER, 0)
+            n_args += 1
+            function_name = f"{self.class_name}.{first_name}"
+
+        self.match('SYMBOL', '(')
+        n_args += self.parse_expression_list()
+        self.match('SYMBOL', ')')
+
+        self.vmWriter.writeCall(function_name, n_args)
+
     def parse_term(self):
         self.open_tag("term")
         token = self.peek()
@@ -152,13 +180,7 @@ class Parser:
             self.write_token(self.advance())
 
             if self.peek() and self.peek()[1] in ['(', '.']:
-                if self.peek()[1] == '.':
-                    self.match('SYMBOL', '.')
-                    self.match('IDENTIFIER')
-
-                self.match('SYMBOL', '(')
-                self.parse_expression_list()
-                self.match('SYMBOL', ')')
+                self.compile_subroutine_call(name)
 
             elif self.peek() and self.peek()[1] == '[':
                 self.match('SYMBOL', '[')
@@ -204,15 +226,19 @@ class Parser:
 
     def parse_expression_list(self):
         self.open_tag("expressionList")
+        count = 0
 
         if self.peek() and self.peek()[1] != ')':
             self.parse_expression()
+            count += 1
 
             while self.peek() and self.peek()[1] == ',':
                 self.match('SYMBOL', ',')
                 self.parse_expression()
+                count += 1
 
         self.close_tag("expressionList")
+        return count
 
     def parse_class(self):
         self.open_tag("class")
@@ -297,6 +323,16 @@ class Parser:
             num_locals += self.parse_var_dec()
 
         self.vmWriter.writeFunction(function_name, num_locals)
+
+        if subroutine_type == 'constructor':
+            qtd_fields = self.symbol_table.var_count(Kind.FIELD)
+            self.vmWriter.writePush(Segment.CONST, qtd_fields)
+            self.vmWriter.writeCall("Memory.alloc", 1)
+            self.vmWriter.writePop(Segment.POINTER, 0)
+
+        elif subroutine_type == 'method':
+            self.vmWriter.writePush(Segment.ARG, 0)
+            self.vmWriter.writePop(Segment.POINTER, 0)
 
         self.parse_statements()
 
@@ -447,15 +483,12 @@ class Parser:
         self.open_tag("doStatement")
         self.match('KEYWORD', 'do')
 
-        self.match('IDENTIFIER')
+        name_token = self.match('IDENTIFIER')
+        name = name_token[1]
 
-        if self.peek() and self.peek()[1] == '.':
-            self.match('SYMBOL', '.')
-            self.match('IDENTIFIER')
+        self.compile_subroutine_call(name)
 
-        self.match('SYMBOL', '(')
-        self.parse_expression_list()
-        self.match('SYMBOL', ')')
+        self.vmWriter.writePop(Segment.TEMP, 0)
 
         self.match('SYMBOL', ';')
         self.close_tag("doStatement")
